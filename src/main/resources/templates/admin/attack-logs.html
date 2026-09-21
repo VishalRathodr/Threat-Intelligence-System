@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attack Logs</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{ background:#0B0F19; color:#fff; font-family:'Poppins', sans-serif; }
+.sidebar{ width:240px; position:fixed; top:0; left:0; height:100vh; background:#121827; border-right:1px solid rgba(0,229,255,0.2); padding-top:20px; }
+.sidebar h4{ color:#00E5FF; text-align:center; font-weight:800; }
+.sidebar a{ display:block; color:#aab; text-decoration:none; padding:12px 20px; margin:5px 10px; border-radius:8px; transition:.3s; }
+.sidebar a:hover{ background:rgba(0,229,255,0.1); color:#00E5FF; transform:translateX(5px); }
+.sidebar a.bg-primary{ background:linear-gradient(90deg,#00E5FF,#7C3AED) !important; color:#000 !important; font-weight:600; }
+
+.content{ margin-left:260px; padding:30px; }
+.card{ background:#121827; border:1px solid rgba(0,229,255,0.15); border-radius:15px; }
+.search-box{ background:#0B0F19; border:1px solid rgba(0,229,255,0.3); color:#fff; }
+.search-box:focus{ background:#0B0F19; color:#fff; border-color:#00E5FF; box-shadow:0 0 10px rgba(0,229,255,0.2); }
+.table-dark-custom thead{ color:#00E5FF; }
+.table-hover tbody tr{ transition:.2s; }
+.table-hover tbody tr:hover{ background:rgba(0,229,255,0.06) !important; }
+.badge-high{ background:rgba(255,0,0,0.2); color:#ff4444; border:1px solid #ff4444; box-shadow:0 0 8px rgba(255,0,0,0.3); }
+.badge-medium{ background:rgba(255,193,7,0.2); color:#ffc107; border:1px solid #ffc107; }
+.badge-low{ background:rgba(0,255,100,0.2); color:#00ff64; border:1px solid #00ff64; }
+.btn-view{ border:1px solid #00E5FF; color:#00E5FF; }
+.btn-view:hover{ background:#00E5FF; color:#000; }
+</style>
+</head>
+<body>
+<div class="container-fluid">
+<div class="row">
+
+<div class="sidebar p-3">
+<h4><i class="fa-solid fa-user-shield"></i> Threat Intel</h4>
+<hr style="border-color:rgba(0,229,255,0.2)">
+<a th:href="@{/admin/dashboard}"><i class="fa-solid fa-gauge me-2"></i> Dashboard</a>
+<a th:href="@{/admin/high-risk}"><i class="fa-solid fa-triangle-exclamation me-2"></i> High Risk</a>
+<a th:href="@{/admin/attack-logs}" class="bg-primary"><i class="fa-solid fa-bug me-2"></i> Attack Logs</a>
+<a th:href="@{/admin/threat-intelligence}"><i class="fa-solid fa-shield-virus me-2"></i> Threat Intelligence</a>
+<a th:href="@{/admin/prediction}"><i class="fa-solid fa-robot me-2"></i> AI Prediction</a>
+<a th:href="@{/admin/reports}"><i class="fa-solid fa-file me-2"></i> Reports</a>
+<a th:href="@{/logout}" class="text-danger mt-3"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a>
+</div>
+
+<div class="col p-0">
+<div class="content">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fa-solid fa-bug" style="color:#ff4444"></i> Attack Logs <span class="badge ms-2" style="background:#121827; border:1px solid #00E5FF" th:text="${#lists.size(attacks)}+' Records'">0</span></h2>
+    <a th:href="@{/admin/attack-logs/export}" class="btn btn-success"><i class="fa-solid fa-file-export"></i> Export CSV</a>
+</div>
+
+<div th:if="${successMsg}" class="alert alert-success" style="background:rgba(0,255,100,0.1); border-color:#00ff64; color:#00ff64">
+    <i class="fa-solid fa-circle-check"></i> <span th:text="${successMsg}"></span>
+</div>
+
+<div class="card p-3 mb-3">
+<div class="row g-2">
+<div class="col-md-5">
+    <div class="input-group">
+        <span class="input-group-text" style="background:#0B0F19; border-color:rgba(0,229,255,0.3); color:#00E5FF"><i class="fa fa-search"></i></span>
+        <input type="text" id="liveSearch" class="form-control search-box" placeholder="Live Search IP, Country, City, Attack...">
+    </div>
+</div>
+<div class="col-md-3">
+    <select id="riskFilter" class="form-select search-box">
+        <option value="">All Risk Levels</option>
+        <option value="HIGH">HIGH Only</option>
+        <option value="MEDIUM">MEDIUM Only</option>
+        <option value="LOW">LOW Only</option>
+    </select>
+</div>
+<div class="col-md-4 text-end">
+    <span class="text-white-50 small mt-2 d-inline-block">Total <b id="count" style="color:#00E5FF">0</b> logs showing</span>
+</div>
+</div>
+</div>
+
+<div class="card shadow">
+<div class="card-body p-0">
+<div class="table-responsive">
+<table class="table table-dark table-hover align-middle mb-0">
+<thead class="table-dark-custom">
+<tr>
+<th>ID</th>
+<th>IP Address</th>
+<th>Country</th>
+<th>City</th>
+<th>Attack</th>
+<th>Risk</th>
+<th>Time</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="logTable">
+<tr th:each="attack : ${attacks}">
+<td th:text="${attack.id}">1</td>
+<td><span th:text="${attack.ipAddress}">192.168.1.1</span> <i class="fa-regular fa-copy ms-2" style="color:#00E5FF; cursor:pointer" onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText)"></i></td>
+<td th:text="${attack.country}">India</td>
+<td th:text="${attack.city}">Pune</td>
+<td><i class="fa-solid fa-skull me-1 text-white-50"></i><span th:text="${attack.attackType}">SQL Injection</span></td>
+<td>
+    <span th:if="${attack.riskLevel=='HIGH'}" class="badge badge-high">HIGH</span>
+    <span th:if="${attack.riskLevel=='MEDIUM'}" class="badge badge-medium">MEDIUM</span>
+    <span th:if="${attack.riskLevel=='LOW'}" class="badge badge-low">LOW</span>
+</td>
+<td th:text="${#temporals.format(attack.timestamp,'dd-MM HH:mm')}">16-09 14:30</td>
+<td>
+    <a th:href="@{/admin/attack-details/{id}(id=${attack.id})}" class="btn btn-sm btn-view"><i class="fa-solid fa-eye"></i></a>
+    <a th:href="@{'/admin/attack/delete/' + ${attack.id}}" class="btn btn-sm btn-outline-danger ms-1" onclick="return confirm('Delete this log?')"><i class="fa-solid fa-trash"></i></a>
+</td>
+</tr>
+</tbody>
+</table>
+<p id="noResult" class="text-center text-white-50 py-4 d-none">No logs found matching your search 😕</p>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const liveSearch = document.getElementById('liveSearch');
+const riskFilter = document.getElementById('riskFilter');
+const tableRows = () => document.querySelectorAll('#logTable tr');
+const countSpan = document.getElementById('count');
+const noResult = document.getElementById('noResult');
+
+function filterLogs(){
+    let search = liveSearch.value.toLowerCase();
+    let risk = riskFilter.value;
+    let visible = 0;
+    tableRows().forEach(row=>{
+        let text = row.innerText.toLowerCase();
+        let matchSearch = text.includes(search);
+        let matchRisk = risk === "" || text.includes(risk.toLowerCase());
+        if(matchSearch && matchRisk){ row.style.display=''; visible++; }
+        else{ row.style.display='none'; }
+    });
+    countSpan.innerText = visible;
+    noResult.classList.toggle('d-none', visible!==0);
+    document.querySelector('table').classList.toggle('d-none', visible===0 && search!=="" );
+}
+liveSearch.addEventListener('keyup', filterLogs);
+riskFilter.addEventListener('change', filterLogs);
+window.addEventListener('load', filterLogs);
+</script>
+</body>
+</html>

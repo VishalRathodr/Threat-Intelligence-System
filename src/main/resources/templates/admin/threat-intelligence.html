@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threat Intelligence</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{ background:#0B0F19; color:#fff; font-family:'Poppins', sans-serif; }
+.sidebar{ width:240px; position:fixed; top:0; left:0; height:100vh; background:#121827; border-right:1px solid rgba(0,229,255,0.2); padding-top:20px; }
+.sidebar h4{ color:#00E5FF; text-align:center; font-weight:800; }
+.sidebar a{ display:block; color:#aab; text-decoration:none; padding:12px 20px; margin:5px 10px; border-radius:8px; transition:.3s; }
+.sidebar a:hover{ background:rgba(0,229,255,0.1); color:#00E5FF; transform:translateX(5px); }
+.sidebar a.bg-primary{ background:linear-gradient(90deg,#00E5FF,#7C3AED) !important; color:#000 !important; font-weight:600; }
+.content{ margin-left:260px; padding:30px; }
+.card{ background:#121827; border:1px solid rgba(0,229,255,0.15); border-radius:15px; transition:.3s; }
+.card:hover{ border-color:rgba(0,229,255,0.4); box-shadow:0 0 20px rgba(0,229,255,0.1); }
+.card-stat{ text-align:center; padding:22px; position:relative; overflow:hidden; cursor:pointer; }
+.card-stat h2{ font-weight:800; font-size:36px; background:linear-gradient(90deg,var(--c1),var(--c2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.glass-header{ background:rgba(18,24,39,0.8); backdrop-filter:blur(10px); border:1px solid rgba(0,229,255,0.2); padding:20px; border-radius:15px; }
+.live-pulse{ width:10px; height:10px; background:#00ff64; border-radius:50%; display:inline-block; box-shadow:0 0 10px #00ff64; animation:pulse 1.5s infinite; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.table-hover tbody tr{ transition:.2s; }
+.table-hover tbody tr:hover{ background:rgba(0,229,255,0.07) !important; }
+</style>
+</head>
+<body>
+<div class="container-fluid">
+<div class="row">
+
+<div class="sidebar p-3">
+<h4><i class="fa-solid fa-user-shield"></i> Threat Intel</h4>
+<hr style="border-color:rgba(0,229,255,0.2)">
+<a th:href="@{/admin/dashboard}"><i class="fa-solid fa-gauge me-2"></i> Dashboard</a>
+<a th:href="@{/admin/high-risk}"><i class="fa-solid fa-triangle-exclamation me-2"></i> High Risk</a>
+<a th:href="@{/admin/attack-logs}"><i class="fa-solid fa-bug me-2"></i> Attack Logs</a>
+<a th:href="@{/admin/threat-intelligence}" class="bg-primary"><i class="fa-solid fa-shield-virus me-2"></i> Threat Intelligence</a>
+<a th:href="@{/admin/prediction}"><i class="fa-solid fa-robot me-2"></i> AI Prediction</a>
+<a th:href="@{/admin/reports}"><i class="fa-solid fa-file me-2"></i> Reports</a>
+<a th:href="@{/logout}" class="text-danger mt-3"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a>
+</div>
+
+<div class="col p-0">
+<div class="content">
+
+<div class="glass-header mb-4 d-flex justify-content-between align-items-center">
+<div>
+<h2 class="m-0"><i class="fa-solid fa-shield-virus" style="color:#00E5FF"></i> Threat Intelligence Dashboard</h2>
+<small class="text-white-50"><span class="live-pulse me-2"></span>Real-time threat analysis • Updated just now</small>
+</div>
+<div><button class="btn btn-sm btn-outline-info" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+</div>
+
+<div class="row g-3 mb-4">
+<div class="col-md-3"><div class="card card-stat" style="--c1:#00E5FF; --c2:#7C3AED" onclick="location.href='/admin/attack-logs'"><i class="fa-solid fa-bug mb-2" style="color:#00E5FF"></i><h5 class="text-white-50">Total Attacks</h5><h2 class="counter" th:data-target="${totalAttacks}" th:text="${totalAttacks}">0</h2></div></div>
+<div class="col-md-3"><div class="card card-stat" style="--c1:#ff4444; --c2:#ff0000"><i class="fa-solid fa-triangle-exclamation mb-2 text-danger"></i><h5 class="text-white-50">High Risk</h5><h2 class="counter" th:data-target="${highRisk}" th:text="${highRisk}">0</h2></div></div>
+<div class="col-md-3"><div class="card card-stat" style="--c1:#ffc107; --c2:#ff8c00"><i class="fa-solid fa-shield-halved mb-2" style="color:#ffc107"></i><h5 class="text-white-50">Medium Risk</h5><h2 th:text="${mediumRisk}">0</h2></div></div>
+<div class="col-md-3"><div class="card card-stat" style="--c1:#00ff64; --c2:#00E5FF"><i class="fa-solid fa-check mb-2" style="color:#00ff64"></i><h5 class="text-white-50">Low Risk</h5><h2 th:text="${lowRisk}">0</h2></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-transparent" style="color:#ff4444; border-bottom:1px solid rgba(255,0,0,0.2)"><i class="fa-solid fa-chart-pie"></i> Risk Level Distribution</div>
+            <div class="card-body" style="height:300px;">
+                <div id="riskData" th:data-high="${highRisk}" th:data-medium="${mediumRisk}" th:data-low="${lowRisk}" style="height:100%"><canvas id="riskChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-transparent" style="color:#00E5FF; border-bottom:1px solid rgba(0,229,255,0.2)"><i class="fa-solid fa-chart-column"></i> Attack Types Analysis</div>
+            <div class="card-body" style="height:300px;">
+                <div id="attackData" th:data-wordpress="${wordpress}" th:data-sql="${sqlInjection}" th:data-xss="${xss}" style="height:100%"><canvas id="attackChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4><i class="fa-solid fa-list"></i> Recent Attack Logs</h4>
+<input type="text" id="searchLog" class="form-control" style="width:250px; background:#0B0F19; border:1px solid rgba(0,229,255,0.3); color:#fff" placeholder="Search IP / Country...">
+</div>
+<div class="card shadow">
+<div class="card-body p-0">
+<div class="table-responsive">
+<table class="table table-dark table-hover align-middle mb-0">
+<thead style="color:#00E5FF"><tr><th>ID</th><th>IP Address</th><th>Country</th><th>Attack Type</th><th>Risk Level</th><th>Time</th></tr></thead>
+<tbody id="logTable">
+<tr th:each="attack : ${attacks}">
+    <td th:text="${attack.id}"></td>
+    <td th:text="${attack.ipAddress}"></td>
+    <td th:text="${attack.country}"></td>
+    <td><span class="badge" style="background:rgba(0,229,255,0.15); color:#00E5FF" th:text="${attack.attackType}">SQL</span></td>
+    <td><span th:class="${attack.riskLevel == 'HIGH' ? 'badge bg-danger' : (attack.riskLevel == 'MEDIUM' ? 'badge bg-warning text-dark' : 'badge bg-success')}" th:text="${attack.riskLevel}"></span></td>
+    <td th:text="${#temporals.format(attack.timestamp,'dd-MM-yyyy HH:mm')}"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Risk Pie
+const riskDiv = document.getElementById("riskData");
+new Chart(document.getElementById("riskChart"), {
+    type: "doughnut",
+    data: {
+        labels: ["High", "Medium", "Low"],
+        datasets: [{ data: [parseInt(riskDiv.dataset.high||0), parseInt(riskDiv.dataset.medium||0), parseInt(riskDiv.dataset.low||0)], backgroundColor: ["#dc3545", "#ffc107", "#00E5FF"], borderColor:"#121827", borderWidth:3 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:"#fff"}, position:"bottom"}} }
+});
+// Attack Bar
+const attackDiv = document.getElementById("attackData");
+new Chart(document.getElementById("attackChart"), {
+    type: "bar",
+    data: {
+        labels: ["WordPress", "SQL Injection", "XSS"],
+        datasets: [{ label:"Attacks", data: [parseInt(attackDiv.dataset.wordpress||0), parseInt(attackDiv.dataset.sql||0), parseInt(attackDiv.dataset.xss||0)], backgroundColor: ["#7C3AED","#dc3545","#00E5FF"], borderRadius:8 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{beginAtZero:true, ticks:{color:"#aaa"}, grid:{color:"rgba(255,255,255,0.05)"}}, x:{ticks:{color:"#aaa"}, grid:{display:false}} }, plugins:{legend:{labels:{color:"#fff"}}} }
+});
+// counter
+document.querySelectorAll('.counter').forEach(c=>{
+    let target = +c.dataset.target || 0; let cur=0; let step=target/40;
+    let i=setInterval(()=>{ cur+=step; if(cur>=target){c.innerText=target; clearInterval(i);} else c.innerText=Math.ceil(cur); },30);
+});
+// search
+document.getElementById('searchLog').addEventListener('keyup', function(){
+    let f=this.value.toLowerCase();
+    document.querySelectorAll('#logTable tr').forEach(r=> r.style.display = r.innerText.toLowerCase().includes(f) ? '' : 'none');
+});
+</script>
+</body>
+</html>

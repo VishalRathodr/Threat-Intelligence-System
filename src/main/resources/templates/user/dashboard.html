@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard - Threat Intel</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{ background:#0B0F19; color:#fff; font-family:'Poppins', sans-serif; min-height:100vh; }
+.card-main{ background:#121827; border:1px solid rgba(0,229,255,0.2); border-radius:20px; overflow:hidden; }
+.header{ background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(124,58,237,0.1)); padding:30px; border-bottom:1px solid rgba(0,229,255,0.15); }
+.avatar{ width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,#00E5FF,#7C3AED); display:flex; align-items:center; justify-content:center; font-size:3rem; margin:0 auto; box-shadow:0 0 30px rgba(0,229,255,0.4); }
+.stat{ background:#0B0F19; border:1px solid rgba(0,229,255,0.1); border-radius:12px; padding:15px; text-align:center; transition:.3s; }
+.stat:hover{ border-color:#00E5FF; transform:translateY(-3px); }
+.btn-custom{ background:linear-gradient(90deg,#00E5FF,#7C3AED); color:#000; font-weight:700; border:none; transition:.3s; }
+.btn-custom:hover{ box-shadow:0 0 20px #00E5FF; transform:translateY(-2px); color:#000; }
+.live{ width:8px; height:8px; background:#00ff64; border-radius:50%; display:inline-block; animation:pulse 1.5s infinite; box-shadow:0 0 10px #00ff64; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<div class="container mt-4">
+<div th:if="${successMsg}" class="alert alert-success border-0" style="background:rgba(0,255,100,0.1); color:#00ff64; border:1px solid #00ff64!important"><i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMsg}"></span></div>
+
+<div class="card card-main shadow-lg">
+<div class="header text-center">
+<div class="avatar"><i class="fa-solid fa-user"></i></div>
+<h2 class="mt-3 fw-bold">Welcome</h2>
+<h4 style="color:#00E5FF" th:text="${user.fullName}">Vishal Rathod</h4>
+<p class="text-white-50" th:text="${user.email}">vishal@gmail.com</p>
+<div class="d-flex justify-content-center gap-3 mt-3">
+<span class="badge" style="background:rgba(0,229,255,0.15); color:#00E5FF; border:1px solid #00E5FF"><i class="fa-solid fa-phone me-1"></i><span th:text="${user.mobile}">9876543210</span></span>
+<span class="badge" style="background:rgba(124,58,237,0.2); color:#7C3AED; border:1px solid #7C3AED"><i class="fa-solid fa-user-tag me-1"></i><span th:text="${user.role}">ROLE_USER</span></span>
+<span class="badge" style="background:rgba(0,255,100,0.1); color:#00ff64; border:1px solid #00ff64"><span class="live me-1"></span>Active</span>
+</div>
+</div>
+
+<div class="card-body p-4">
+
+<div class="row g-3 mb-4">
+<div class="col-4"><div class="stat"><h4 style="color:#00E5FF">12</h4><small class="text-white-50">Threats Viewed</small></div></div>
+<div class="col-4"><div class="stat"><h4 style="color:#7C3AED">3</h4><small class="text-white-50">Reports</small></div></div>
+<div class="col-4"><div class="stat"><h4 style="color:#00ff64">100%</h4><small class="text-white-50">Secure</small></div></div>
+</div>
+
+<h5 class="mb-3" style="color:#00E5FF"><i class="fa-solid fa-bolt"></i> Quick Access</h5>
+<div class="row g-3">
+
+<div class="col-md-4">
+<a href="/threat-info" style="text-decoration:none"><div class="stat text-start p-3" style="cursor:pointer"><i class="fa-solid fa-shield-halved fa-2x mb-2" style="color:#00E5FF"></i><h6>Threat Intelligence</h6><small class="text-white-50">View live threats & AI analysis</small></div></a>
+</div>
+
+<div class="col-md-4">
+<a href="/projects" style="text-decoration:none"><div class="stat text-start p-3" style="cursor:pointer"><i class="fa-solid fa-diagram-project fa-2x mb-2" style="color:#7C3AED"></i><h6>My Projects</h6><small class="text-white-50">Explore all projects</small></div></a>
+</div>
+
+<div class="col-md-4">
+<a href="/contact" style="text-decoration:none"><div class="stat text-start p-3" style="cursor:pointer"><i class="fa-solid fa-headset fa-2x mb-2" style="color:#00ff64"></i><h6>Support</h6><small class="text-white-50">Contact admin</small></div></a>
+</div>
+
+</div>
+
+<hr style="border-color:rgba(0,229,255,0.15)" class="my-4">
+
+<div class="d-flex justify-content-center gap-3">
+<a href="/profile" class="btn btn-custom"><i class="fa-solid fa-user me-2"></i>My Profile</a>
+<a href="/" class="btn btn-outline-light"><i class="fa-solid fa-house me-2"></i>Home</a>
+<a href="/logout" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+</div>
+
+<p class="text-center mt-4 small text-white-50"><i class="fa-solid fa-lock me-1"></i>Your account is secured by Threat Intel System</p>
+
+</div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Login - Threat Intel</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{ background:#0B0F19; min-height:100vh; display:flex; align-items:center; font-family:'Poppins', sans-serif; color:#fff; overflow:hidden; }
+.bg-glow{ position:absolute; width:600px; height:600px; background:radial-gradient(circle, rgba(0,229,255,0.12) 0%, transparent 70%); top:-200px; left:-200px; }
+.card{ border:none; border-radius:20px; background:#121827; border:1px solid rgba(0,229,255,0.2); backdrop-filter:blur(20px); }
+.form-control{ background:#1C2438; border:1px solid rgba(0,229,255,0.2); color:#fff; }
+.form-control::placeholder{ color:#666; }
+.form-control:focus{ background:#1C2438; color:#fff; border-color:#00E5FF; box-shadow:0 0 15px rgba(0,229,255,0.3); }
+.btn-primary{ background:linear-gradient(90deg,#00E5FF,#7C3AED); border:none; font-weight:700; transition:.3s; }
+.btn-primary:hover{ box-shadow:0 0 25px #00E5FF; transform:translateY(-2px); color:#000; }
+.left-panel{ background:linear-gradient(135deg,rgba(0,229,255,0.05),rgba(124,58,237,0.05)); border:1px solid rgba(0,229,255,0.15); border-radius:20px; padding:30px; }
+.feature{ display:flex; gap:12px; margin-bottom:18px; align-items:center; }
+.feature i{ width:40px; height:40px; background:rgba(0,229,255,0.1); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#00E5FF; }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="container position-relative" style="z-index:2">
+<div class="row justify-content-center align-items-center g-4">
+
+<!-- Left Info -->
+<div class="col-lg-5 d-none d-lg-block">
+<div class="left-panel">
+<h2 style="color:#00E5FF; font-weight:800"><i class="fa-solid fa-shield-halved"></i> Threat Intel</h2>
+<p class="text-white-50">Secure access to your threat intelligence dashboard.</p>
+<div class="mt-4">
+<div class="feature"><i class="fa-solid fa-bolt"></i><div><b>Real-time Alerts</b><br><small class="text-white-50">Live attack monitoring</small></div></div>
+<div class="feature"><i class="fa-solid fa-chart-line"></i><div><b>AI Analysis</b><br><small class="text-white-50">Risk prediction 95% accurate</small></div></div>
+<div class="feature"><i class="fa-solid fa-lock"></i><div><b>100% Secure</b><br><small class="text-white-50">Encrypted & protected</small></div></div>
+</div>
+<div class="mt-4 p-3 rounded" style="background:#0B0F19; border:1px solid rgba(0,255,100,0.2)">
+<small><span style="width:8px; height:8px; background:#00ff64; border-radius:50%; display:inline-block; box-shadow:0 0 10px #00ff64"></span> <span style="color:#00ff64">System Online</span> • 1,248 threats blocked today</small>
+</div>
+</div>
+</div>
+
+<!-- Login Card -->
+<div class="col-lg-5 col-md-7">
+<div class="card shadow-lg">
+<div class="card-body p-5">
+<div class="text-center mb-4">
+<div style="width:70px; height:70px; background:linear-gradient(135deg,#00E5FF,#7C3AED); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; box-shadow:0 0 20px rgba(0,229,255,0.4)"><i class="fa-solid fa-user-shield fa-2x text-dark"></i></div>
+<h2 class="mt-3">User Login</h2>
+<p class="text-white-50 small">Access Threat Intelligence, Reports and Profile</p>
+</div>
+
+<div class="alert alert-danger py-2 small" th:if="${param.error}"><i class="fa-solid fa-circle-xmark me-2"></i>Invalid Email or Password</div>
+<div class="alert py-2 small" style="background:rgba(0,255,100,0.1); color:#00ff64; border:1px solid #00ff64" th:if="${param.logout}"><i class="fa-solid fa-circle-check me-2"></i>Logged out successfully</div>
+
+<form th:action="@{/user/login}" method="post">
+<div class="mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-envelope me-1" style="color:#00E5FF"></i>Email</label><input type="email" name="username" class="form-control form-control-lg" placeholder="user@email.com" required></div>
+<div class="mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-lock me-1" style="color:#00E5FF"></i>Password</label>
+<div class="input-group"><input type="password" name="password" id="pass" class="form-control form-control-lg" placeholder="********" required><button class="btn btn-outline-light" type="button" onclick="let p=document.getElementById('pass'); p.type=p.type==='password'?'text':'password'"><i class="fa-solid fa-eye"></i></button></div>
+</div>
+<div class="d-flex justify-content-between small mb-3"><div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label text-white-50">Remember me</label></div></div>
+<button class="btn btn-primary w-100 btn-lg mb-3"><i class="fa-solid fa-sign-in-alt me-2"></i>Login to Dashboard</button>
+</form>
+
+<hr style="border-color:rgba(255,255,255,0.1)">
+<div class="text-center"><p class="text-white-50 small mb-2">Don't have an account?</p><a href="/user/register" class="btn btn-outline-light w-100"><i class="fa-solid fa-user-plus me-2"></i>Create New Account</a></div>
+<div class="text-center mt-3"><a href="/login" class="small" style="color:#00E5FF; text-decoration:none;"><i class="fa-solid fa-arrow-left me-1"></i>Back to Select Login</a></div>
+<div class="text-center mt-3 small text-white-50"><i class="fa-solid fa-lock"></i> Secured by Threat Intel • Encrypted</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

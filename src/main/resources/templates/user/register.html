@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Registration - Threat Intel</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{ background:#0B0F19; min-height:100vh; display:flex; align-items:center; font-family:'Poppins', sans-serif; color:#fff; padding:20px 0; }
+.card{ border:none; border-radius:20px; background:#121827; border:1px solid rgba(0,229,255,0.2); }
+.form-control{ background:#1C2438; border:1px solid rgba(0,229,255,0.2); color:#fff; }
+.form-control::placeholder{ color:#666; }
+.form-control:focus{ background:#1C2438; color:#fff; border-color:#00E5FF; box-shadow:0 0 15px rgba(0,229,255,0.2); }
+.btn-primary{ background:linear-gradient(90deg,#00E5FF,#7C3AED); border:none; font-weight:700; transition:.3s; }
+.btn-primary:hover{ box-shadow:0 0 25px #00E5FF; transform:translateY(-2px); color:#000; }
+.strength{ height:4px; border-radius:2px; background:#333; margin-top:6px; overflow:hidden; }
+.strength div{ height:100%; width:0%; transition:.4s; }
+a{ color:#00E5FF!important; text-decoration:none; }
+a:hover{ text-shadow:0 0 8px #00E5FF; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-6">
+
+<div class="card shadow-lg">
+<div class="card-body p-4 p-md-5">
+
+<div class="text-center mb-4">
+<div style="width:60px; height:60px; background:linear-gradient(135deg,#00E5FF,#7C3AED); border-radius:15px; display:flex; align-items:center; justify-content:center; margin:0 auto; box-shadow:0 0 20px rgba(0,229,255,0.4)"><i class="fa-solid fa-user-plus fa-2x text-dark"></i></div>
+<h2 class="mt-3">Create Account</h2>
+<p class="text-white-50 small">Join Threat Intelligence Platform - Secure & Free</p>
+</div>
+
+<div class="alert alert-success py-2 small" th:if="${success}" th:text="${success}"></div>
+<div class="alert alert-danger py-2 small" th:if="${error}" th:text="${error}"></div>
+
+<form th:action="@{/user/register}" method="post" th:object="${user}" id="regForm">
+
+<div class="row">
+<div class="col-md-12 mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-user me-1" style="color:#00E5FF"></i>Full Name</label><input type="text" class="form-control" th:field="*{fullName}" placeholder="Vishal Rathod" required></div>
+</div>
+
+<div class="row">
+<div class="col-md-6 mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-envelope me-1" style="color:#00E5FF"></i>Email</label><input type="email" class="form-control" th:field="*{email}" placeholder="user@email.com" required></div>
+<div class="col-md-6 mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-phone me-1" style="color:#00E5FF"></i>Mobile</label><input type="text" class="form-control" th:field="*{mobile}" placeholder="9876543210" pattern="[0-9]{10}" required></div>
+</div>
+
+<div class="mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-lock me-1" style="color:#00E5FF"></i>Password</label>
+<div class="input-group"><input type="password" class="form-control" id="pass1" th:field="*{password}" placeholder="Min 8 chars, 1 uppercase, 1 number" required><button class="btn btn-outline-light" type="button" onclick="toggle('pass1')"><i class="fa-solid fa-eye"></i></button></div>
+<div class="strength"><div id="bar"></div></div><small id="txt" class="text-white-50" style="font-size:11px">Password strength</small>
+</div>
+
+<div class="mb-3"><label class="form-label small text-white-50"><i class="fa-solid fa-lock me-1" style="color:#00E5FF"></i>Confirm Password</label>
+<div class="input-group"><input type="password" class="form-control" id="pass2" name="confirmPassword" placeholder="Re-enter password" required><button class="btn btn-outline-light" type="button" onclick="toggle('pass2')"><i class="fa-solid fa-eye"></i></button></div>
+<small id="match" style="font-size:11px"></small>
+</div>
+
+<div class="form-check mb-3"><input class="form-check-input" type="checkbox" required id="terms"><label class="form-check-label small text-white-50" for="terms">I agree to <span style="color:#00E5FF">Terms & Privacy</span> • Secured by Threat Intel</label></div>
+
+<div class="d-grid"><button class="btn btn-primary btn-lg" id="regBtn"><i class="fa-solid fa-user-check me-2"></i>Create Account</button></div>
+
+</form>
+
+<hr style="border-color:rgba(255,255,255,0.1)" class="my-4">
+<div class="text-center"><p class="small text-white-50">Already have an account? <a th:href="@{/user/login}" class="fw-bold">Login Here</a></p></div>
+<div class="text-center mt-2"><a th:href="@{/login}" class="small"><i class="fa-solid fa-arrow-left me-1"></i>Back to Login</a></div>
+<div class="text-center mt-3 small text-white-50"><i class="fa-solid fa-shield-halved" style="color:#00E5FF"></i> Encrypted & 100% Secure Registration</div>
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggle(id){ let p=document.getElementById(id); p.type=p.type==='password'?'text':'password'; }
+document.getElementById('pass1').addEventListener('input', function(){
+ let v=this.value, s=0;
+ if(v.length>=8) s++; if(/[A-Z]/.test(v)) s++; if(/[0-9]/.test(v)) s++; if(/[^A-Za-z0-9]/.test(v)) s++;
+ let bar=document.getElementById('bar'), txt=document.getElementById('txt');
+ let w=s*25, colors=['#ff4444','#ff8c00','#ffc107','#00ff64','#00E5FF'], labels=['Very Weak','Weak','Medium','Strong','Very Strong'];
+ bar.style.width=w+'%'; bar.style.background=colors[s-1]||'#333'; txt.innerText=labels[s-1]||'Password strength'; txt.style.color=colors[s-1]||'#888';
+});
+document.getElementById('pass2').addEventListener('input', function(){
+ let m=document.getElementById('match'), p1=document.getElementById('pass1').value;
+ if(this.value===''){ m.innerText=''; return; }
+ if(this.value===p1){ m.innerText='✓ Passwords match'; m.style.color='#00ff64'; } else { m.innerText='✗ Passwords do not match'; m.style.color='#ff4444'; }
+});
+</script>
+</body>
+</html>

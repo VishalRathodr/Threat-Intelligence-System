@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Prediction</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{ background:#0B0F19; color:#fff; font-family:'Poppins', sans-serif; min-height:100vh; display:flex; align-items:center; }
+.card{ background:#121827; border:1px solid rgba(124,58,237,0.3); border-radius:20px; box-shadow:0 0 40px rgba(124,58,237,0.15); overflow:hidden; }
+.card-header{ background:linear-gradient(90deg,#7C3AED,#00E5FF) !important; border:none; }
+.form-control, .form-select{ background:#0B0F19; border:1px solid rgba(124,58,237,0.3); color:#fff; }
+.form-control:focus, .form-select:focus{ background:#0B0F19; color:#fff; border-color:#7C3AED; box-shadow:0 0 15px rgba(124,58,237,0.3); }
+label{ color:#aab; font-size:13px; margin-bottom:5px; }
+.btn-predict{ background:linear-gradient(90deg,#7C3AED,#00E5FF); border:none; font-weight:700; transition:.3s; }
+.btn-predict:hover{ transform:scale(1.02); box-shadow:0 0 25px rgba(124,58,237,0.5); }
+.ai-brain{ font-size:50px; color:#7C3AED; animation: brainPulse 1.5s infinite; }
+@keyframes brainPulse{ 0%,100%{transform:scale(1); filter:drop-shadow(0 0 10px #7C3AED)} 50%{transform:scale(1.1); filter:drop-shadow(0 0 20px #7C3AED)} }
+.confidence-circle{ width:120px; height:120px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:28px; margin:auto; border:6px solid; }
+.result-card{ background:#0B0F19; border:1px solid rgba(0,229,255,0.2); border-radius:15px; }
+.typing::after{ content:'|'; animation:blink 1s infinite; }
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-8">
+
+<div class="card shadow">
+<div class="card-header text-white p-4">
+<h3 class="m-0"><i class="fa-solid fa-robot"></i> AI Threat Prediction <small class="ms-3" style="font-size:12px; background:rgba(0,0,0,0.3); padding:4px 10px; border-radius:20px"><i class="fa-solid fa-microchip"></i> GPT-Model v2.0</small></h3>
+</div>
+
+<div class="card-body p-4">
+<form th:action="@{/admin/prediction}" method="post" id="predForm">
+<div class="row">
+
+<div class="col-md-6 mb-3">
+    <label><i class="fa-solid fa-network-wired"></i> IP Address</label>
+    <select name="ipAddress" class="form-control" required>
+        <option value="">-- Select IP Address --</option>
+        <option th:each="ip : ${savedIps}" th:value="${ip}" th:text="${ip}"></option>
+    </select>
+</div>
+
+<div class="col-md-6 mb-3">
+<label><i class="fa-solid fa-shield-halved"></i> Protocol</label>
+<select name="protocol" class="form-select">
+<option>HTTP</option><option>HTTPS</option><option>TCP</option><option>UDP</option><option>SSH</option>
+</select>
+</div>
+<div class="col-md-6 mb-3">
+<label><i class="fa-solid fa-plug"></i> Port</label>
+<input type="number" name="port" class="form-control" placeholder="e.g. 443" required>
+</div>
+<div class="col-md-6 mb-3">
+<label><i class="fa-solid fa-chart-simple"></i> Request Count</label>
+<input type="number" name="requestCount" class="form-control" placeholder="e.g. 1500" required>
+</div>
+</div>
+<button type="submit" class="btn btn-predict w-100 btn-lg mt-2" id="predictBtn">
+<span id="btnNormal"><i class="fa-solid fa-brain"></i> Predict Threat with AI</span>
+<span id="btnLoading" class="d-none"><i class="fa-solid fa-spinner fa-spin"></i> AI Analyzing... <span class="typing">Thinking</span></span>
+</button>
+</form>
+
+<div th:if="${result!=null}" class="mt-4" id="resultBox">
+<hr style="border-color:rgba(124,58,237,0.2)">
+<div class="text-center mb-3">
+<i class="fa-solid fa-brain ai-brain"></i>
+<h4 class="mt-2" style="color:#00E5FF">Prediction Result</h4>
+</div>
+
+<div class="row g-3">
+<div class="col-md-4 text-center">
+<div class="confidence-circle" th:style="${result.riskLevel=='HIGH' ? 'border-color:#ff4444; color:#ff4444; box-shadow:0 0 20px rgba(255,0,0,0.3)' : (result.riskLevel=='MEDIUM' ? 'border-color:#ffc107; color:#ffc107' : 'border-color:#00ff64; color:#00ff64')}" th:text="${result.confidence}+'%'">92%</div>
+<p class="small text-white-50 mt-2">Confidence</p>
+</div>
+<div class="col-md-8">
+<div class="result-card p-3">
+<table class="table table-dark table-borderless mb-0">
+<tr><th style="color:#aab">Attack Type</th><td><span class="badge" style="background:rgba(124,58,237,0.2); color:#7C3AED; border:1px solid #7C3AED" th:text="${result.attackType}">SQL Injection</span></td></tr>
+<tr><th style="color:#aab">Risk Level</th><td>
+<span th:if="${result.riskLevel=='HIGH'}" class="badge bg-danger" style="box-shadow:0 0 10px #ff4444">HIGH</span>
+<span th:if="${result.riskLevel=='MEDIUM'}" class="badge bg-warning text-dark">MEDIUM</span>
+<span th:if="${result.riskLevel=='LOW'}" class="badge bg-success">LOW</span>
+</td></tr>
+<tr><th style="color:#aab">Recommendation</th><td th:text="${result.recommendation}" style="color:#fff; font-size:14px">Block IP immediately and update firewall rules.</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<div class="alert mt-3" style="background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.3); color:#00E5FF; font-size:13px">
+<i class="fa-solid fa-lightbulb"></i> <span th:text="${result.recommendation}">Block IP immediately and update firewall rules.</span>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById('predForm').addEventListener('submit', function(){
+    document.getElementById('btnNormal').classList.add('d-none');
+    document.getElementById('btnLoading').classList.remove('d-none');
+    document.getElementById('predictBtn').disabled=true;
+});
+window.addEventListener('load', ()=>{
+    let circle = document.querySelector('.confidence-circle');
+    if(circle){
+        circle.style.transform='scale(0)';
+        setTimeout(()=>{ circle.style.transition='0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)'; circle.style.transform='scale(1)'; },200);
+    }
+});
+</script>
+</body>
+</html>
